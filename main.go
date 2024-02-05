@@ -2,6 +2,7 @@ package main
 
 import (
 	"Warranty-Microservice/api/forms"
+	"Warranty-Microservice/api/middlewares"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -18,7 +19,7 @@ func setupRoutes(router *gin.Engine) {
 
 	usersGroup := apiGroup.Group("/users")
 	{
-		usersGroup.GET("", forms.UserHandler)  // Remove gin.HandlerFunc conversion
+		usersGroup.GET("", middlewares.AuthMiddleware(), forms.UserHandler)
 		usersGroup.POST("", forms.UserHandler) // Remove gin.HandlerFunc conversion
 	}
 
