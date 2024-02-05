@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func CustomerHandler(c *gin.Context) {
+func WarrantyHandler(c *gin.Context) {
 	switch c.Request.Method {
 	case http.MethodGet:
 		// Handle error from ConnectedDb()
@@ -18,7 +18,7 @@ func CustomerHandler(c *gin.Context) {
 		}
 
 		// Get the data and handle the error
-		data, err := config.ReadAllData(db, "customer")
+		data, err := config.ReadAllData(db, "warranty")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 			return
@@ -36,7 +36,7 @@ func CustomerHandler(c *gin.Context) {
 		}
 
 		// Validate required fields in the JSON payload
-		requiredFields := []string{"FirstName", "LastName", "Email", "Phone"}
+		requiredFields := []string{"StartDate", "EndDate", "CoverageType"}
 		for _, field := range requiredFields {
 			if _, exists := requestData[field]; !exists {
 				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Bad Request: Missing required field - %s", field)})
@@ -52,7 +52,7 @@ func CustomerHandler(c *gin.Context) {
 		}
 
 		// Insert the data into the database
-		err = config.InsertData(db, "customer", requestData)
+		err = config.InsertData(db, "warranty", requestData)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 			return

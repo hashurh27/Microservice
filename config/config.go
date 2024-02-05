@@ -12,7 +12,7 @@ var dbConfig = map[string]string{
 	"host":   "localhost",
 	"dbname": "warranty",
 	"user":   "root",
-	"pass":   "",
+	"pass":   "", // Consider loading this from a secure source in a production environment.
 }
 
 // GetDBConfig returns the database configuration map
@@ -28,16 +28,25 @@ func CreateDBConnection(host, dbname, user, pass string) (*sql.DB, error) {
 	// Open a connection to the database
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open database connection: %w", err)
 	}
 
+	// Set up connection pooling
+	db.SetMaxOpenConns(10) // Adjust as needed
+	db.SetMaxIdleConns(5)  // Adjust as needed
+
 	// Test the connection
-	if err = db.Ping(); err != nil {
+	if err := db.Ping(); err != nil {
 		db.Close()
-		return nil, err
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
 	return db, nil
+}
+
+// ConnectedDb creates a database connection using the configuration in dbConfig
+func ConnectedDb() (*sql.DB, error) {
+	return CreateDBConnection(dbConfig["host"], dbConfig["dbname"], dbConfig["user"], dbConfig["pass"])
 }
 
 // InsertData inserts data into the specified table in the database
@@ -157,8 +166,8 @@ func ReadData(db *sql.DB, tableName string, conditions map[string]interface{}) (
 	return result, nil
 }
 
-// getData provides sample data
-func GetData() map[string]interface{} {
+// getUserData provides sample data
+func GetUserData() map[string]interface{} {
 	return map[string]interface{}{
 		"FirstName": "John",
 		"LastName":  "Doe",
